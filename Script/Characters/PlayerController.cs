@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
         SwitchAnimation();
 
         lastAttackTime -= Time.deltaTime;
+        //Debug.Log("PLAYER HEALTH: "+characterStats.CurrentHealth);
     }
     private void SwitchAnimation()
     {
@@ -105,7 +106,7 @@ public class PlayerController : MonoBehaviour
         {
             CharacterStats targetStats = attackTarget.GetComponent<CharacterStats>();
 
-            characterStats.TakeDamage(characterStats, targetStats);
+            targetStats.TakeDamage(characterStats, targetStats);
         }
 
     }
