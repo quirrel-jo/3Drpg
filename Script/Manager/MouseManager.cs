@@ -10,7 +10,7 @@ using System;
 public class MouseManager : Singleton<MouseManager>
 {
 
-    public Texture2D point,doorway,attack,target,arrow;
+    public Texture2D point, doorway, attack, target, arrow;
     RaycastHit hitinfo;
     public event Action<Vector3> OnMouseClicked;
     public event Action<GameObject> OnEnemyClicked;
@@ -31,32 +31,37 @@ public class MouseManager : Singleton<MouseManager>
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if(Physics.Raycast(ray,out hitinfo))
+        if (Physics.Raycast(ray, out hitinfo))
         {
             //切换鼠标贴图
-            switch(hitinfo.collider.gameObject.tag)
+            switch (hitinfo.collider.gameObject.tag)
             {
                 case "Ground":
-                    Cursor.SetCursor(target,new Vector2(16,16),CursorMode.Auto);
+                    Cursor.SetCursor(target, new Vector2(16, 16), CursorMode.Auto);
                     break;
-                 case "Enemy":
-                    Cursor.SetCursor(attack,new Vector2(16,16),CursorMode.Auto);
+                case "Enemy":
+                    Cursor.SetCursor(attack, new Vector2(16, 16), CursorMode.Auto);
                     break;
-                
+                case "Portal":
+                    Cursor.SetCursor(doorway,new Vector2(16,16),CursorMode.Auto);
+                    break;
+
             }
         }
     }
 
     void MouseControl()
     {
-        if(Input.GetMouseButtonDown(0) && hitinfo.collider != null)
+        if (Input.GetMouseButtonDown(0) && hitinfo.collider != null)
         {
-            if(hitinfo.collider.gameObject.CompareTag("Ground"))
+            if (hitinfo.collider.gameObject.CompareTag("Ground"))
                 OnMouseClicked?.Invoke(hitinfo.point);
-            if(hitinfo.collider.gameObject.CompareTag("Enemy"))
+            if (hitinfo.collider.gameObject.CompareTag("Enemy"))
                 OnEnemyClicked?.Invoke(hitinfo.collider.gameObject);
-            if(hitinfo.collider.gameObject.CompareTag("Attackable"))
+            if (hitinfo.collider.gameObject.CompareTag("Attackable"))
                 OnEnemyClicked?.Invoke(hitinfo.collider.gameObject);
+            if (hitinfo.collider.gameObject.CompareTag("Portal"))
+                OnMouseClicked?.Invoke(hitinfo.point);
         }
     }
 

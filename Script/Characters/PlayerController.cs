@@ -16,32 +16,43 @@ public class PlayerController : MonoBehaviour
     private float stopDistance;
     void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
-        characterStats = GetComponent<CharacterStats>();
-        stopDistance = agent.stoppingDistance;
+        agent = GetComponent<NavMeshAgent>();//获取导航组件
+        anim = GetComponent<Animator>();//获取动画组件
+        characterStats = GetComponent<CharacterStats>();//获取角色状态组件
+        stopDistance = agent.stoppingDistance;//获取停止距离
+
+    }
+    void OnEnable()
+    {
+        MouseManager.Instance.OnMouseClicked += MoveToTarget;//注册事件
+        MouseManager.Instance.OnEnemyClicked += EventAttack;//注册事件
+        GameManager.Instance.RegisterPlayer(characterStats);//注册玩家
+    }
+    void Start()
+    {
+        
+        SaveManager.Instance.LoadPlayerData();//加载玩家数据    
 
     }
 
-    void Start()
+    void OnDisable()
     {
-        MouseManager.Instance.OnMouseClicked += MoveToTarget;
-        MouseManager.Instance.OnEnemyClicked += EventAttack;
-        characterStats.MaxHealth = 100;
-        GameManager.Instance.RegisterPlayer(characterStats);
-
+        if(!MouseManager.IsInitialized) return;//如果鼠标管理器未初始化则不注销事件
+        MouseManager.Instance.OnMouseClicked -= MoveToTarget;//注销事件
+        MouseManager.Instance.OnEnemyClicked -= EventAttack;//注销事件
     }
 
 
 
     void Update()
     {
-        isDead = characterStats.CurrentHealth == 0;
+        if (GameManager.Instance.playerStats.characterData != null)//
+        isDead = characterStats.CurrentHealth == 0;//角色血量为0时角色死亡
         if (isDead)
-            GameManager.Instance.NoitfyObserves();
-        SwitchAnimation();
+            GameManager.Instance.NoitfyObserves();//如果角色死亡则通知观察者角色死亡
+        SwitchAnimation();//切换动画
 
-        lastAttackTime -= Time.deltaTime;
+        lastAttackTime -= Time.deltaTime;//减少上次攻击时间
         //Debug.Log("PLAYER HEALTH: "+characterStats.CurrentHealth);
     }
     private void SwitchAnimation()

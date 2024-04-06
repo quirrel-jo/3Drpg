@@ -89,7 +89,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
             SwitchAnimation();
             lastAttackTime -= Time.deltaTime;
         }
-
+        
 
     }
     void SwitchAnimation()
