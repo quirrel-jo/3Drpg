@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Playables;
 
 public class MainMenu : MonoBehaviour
 {
     Button newGameBtn;
     Button continueBtn;
     Button quitBtn;
+    PlayableDirector director;
     void Awake()
     {
         newGameBtn = transform.GetChild(01).GetComponent<Button>();
@@ -16,11 +18,20 @@ public class MainMenu : MonoBehaviour
         quitBtn = transform.GetChild(03).GetComponent<Button>();
 
 
-        newGameBtn.onClick.AddListener(NewGame);
+        newGameBtn.onClick.AddListener(PlayTimeLine);
         continueBtn.onClick.AddListener(ContinueGame);
-        quitBtn.onClick.AddListener(QuitGame);
+        quitBtn.onClick.AddListener(QuitGame);//绑定按钮事件
+
+
+        director = FindObjectOfType<PlayableDirector>();//获取播放器
+        director.stopped += NewGame;//当播放器停止时，调用NewGame()
     }
-    void NewGame()//开始新游戏
+    
+    void PlayTimeLine()//播放时间轴
+    {
+        director.Play();//播放时间轴
+    }
+    void NewGame(PlayableDirector obj)//开始新游戏
     {
         PlayerPrefs.DeleteAll();//删除所有存档
         SceneController.Instance.TransitionToFirstLevel();//跳转到第一关

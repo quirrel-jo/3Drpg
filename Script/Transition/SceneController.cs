@@ -5,9 +5,13 @@ using UnityEngine.SceneManagement;
 using UnityEngine.AI;
 using Unity.VisualScripting;
 
-public class SceneController : Singleton<SceneController>
+public class SceneController : Singleton<SceneController>, IEndGameObserver
 {
     public GameObject playerPrefab;
+
+    public SceneFader sceneFaderPrefab;
+
+    bool fadeFinished;
     GameObject player;
     NavMeshAgent playerAgent;
 
@@ -17,7 +21,12 @@ public class SceneController : Singleton<SceneController>
         DontDestroyOnLoad(this);//保证场景切换后不销毁场景控制器
     }
 
-  
+    void Start()
+    {
+        GameManager.Instance.AddObserve(this);//注册结束游戏观察者
+        //FIXME: 教程里面用的AddObserves 不知道出什么问题了
+        fadeFinished = true;
+    }
     public void TransitionToDestination(TransitionPoint transitionPoint)
     {
         switch (transitionPoint.transitionType)//切换场景类型
@@ -34,7 +43,7 @@ public class SceneController : Singleton<SceneController>
 
     IEnumerator Transition(string sceneName, TransitionDestination.DestinationTag destinationTag)
     {
-        
+
         //TODO: 保存shuffle点的位置信息，以便下次传送时恢复
         SaveManager.Instance.SavePlayerData();//保存玩家数据
 
@@ -67,32 +76,47 @@ public class SceneController : Singleton<SceneController>
         }
         return null;
     }
-      public void TranstionToMain()//  传送到main场景
+    public void TranstionToMain()//  传送到main场景
     {
         StartCoroutine(LoadMain());//异步加载main场景
     }
-     public void TransitionToLoadGame()//  传送到保存的场景
-     {
+    public void TransitionToLoadGame()//  传送到保存的场景
+    {
         StartCoroutine(LoadLevel(SaveManager.Instance.SceneName));//异步加载当前场景
-     }
+    }
     public void TransitionToFirstLevel()//  传送到第一个场景
     {
         StartCoroutine(LoadLevel("start"));//异步加载第一个场景
     }
     IEnumerator LoadLevel(string scene)//协程加载场景
     {
-        if(scene != "")//如果场景名不为空
+        SceneFader fade = Instantiate(sceneFaderPrefab);//实例化场景淡出效果
+        if (scene != "")//如果场景名不为空
         {
+            yield return StartCoroutine(fade.FadeOut(2f));//淡出当前场景  
             yield return SceneManager.LoadSceneAsync(scene);//异步加载场景
-            yield return player = Instantiate(playerPrefab,GameManager.Instance.GetEntrance().position, GameManager.Instance.GetEntrance().rotation); //通过gamemanager获取入口位置，实例化玩家对象
+            yield return player = Instantiate(playerPrefab, GameManager.Instance.GetEntrance().position, GameManager.Instance.GetEntrance().rotation); //通过gamemanager获取入口位置，实例化玩家对象
 
-        SaveManager.Instance.SavePlayerData();//保存玩家数据
-        yield break;
+            SaveManager.Instance.SavePlayerData();//保存玩家数据
+            yield return StartCoroutine(fade.FadeIn(2f));//淡入目标场景
+            yield break;
         }
     }
     IEnumerator LoadMain()//协程加载main场景
     {
+        SceneFader fade = Instantiate(sceneFaderPrefab);//实例化场景淡出效果
+        yield return StartCoroutine(fade.FadeOut(2f));//淡出当前场景  
         yield return SceneManager.LoadSceneAsync("Main");//异步加载main场景
+        yield return StartCoroutine(fade.FadeIn(2f));//淡入目标场景
         yield break;
+    }
+
+    public void EndNotify()
+    {
+        if(fadeFinished)
+        {
+            fadeFinished = false;
+            StartCoroutine(LoadMain());//传送到main场景
+        }
     }
 }

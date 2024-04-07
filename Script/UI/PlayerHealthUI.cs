@@ -21,9 +21,9 @@ public class PlayerHealthUI : MonoBehaviour
     {
         if (GameManager.Instance.playerStats.characterData != null)
         {
-        levelText.text = "Level " + GameManager.Instance.playerStats.characterData.currentlevel.ToString("00");
-        UpdateHealth();
-        UpdateExp();
+            levelText.text = "Level " + GameManager.Instance.playerStats.characterData.currentlevel.ToString("00");
+            UpdateHealth();
+            UpdateExp();
         //Debug.Log("当前生命值为："+ GameManager.Instance.playerStats.CurrentHealth +"当前经验值为"+GameManager.Instance.playerStats.characterData.currentExp);
         }
     }
