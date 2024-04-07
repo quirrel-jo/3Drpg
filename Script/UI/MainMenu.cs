@@ -16,8 +16,8 @@ public class MainMenu : MonoBehaviour
         quitBtn = transform.GetChild(03).GetComponent<Button>();
 
 
-        newGameBtn = onClick.AddListener(NewGame);
-        continueBtn = onClick.AddListener(ContinueGame);
+        newGameBtn.onClick.AddListener(NewGame);
+        continueBtn.onClick.AddListener(ContinueGame);
         quitBtn.onClick.AddListener(QuitGame);
     }
     void NewGame()//开始新游戏
